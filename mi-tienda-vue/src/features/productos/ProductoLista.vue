@@ -116,6 +116,20 @@ const resetFormulario = () => {
 </script>
 
 <template>
+  
+  <div class="app-shell">
+     <header class="topbar">
+      <div class="marca">
+        <span class="marca__logo" aria-hidden="true">V</span>
+        <div>
+          <h1>Productos</h1>
+          <p>CRUD conectado a la API Symfony · Vue 3 + Vite</p>
+        </div>
+      </div>
+
+      <span class="chip-api">API · /api/productos</span>
+    </header>
+  </div> 
   <div class="container" style="padding: 20px; font-family: sans-serif;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h2>Gestión de Existencias (Vue 3 + Composition API)</h2>
@@ -202,3 +216,262 @@ const resetFormulario = () => {
     </div>
   </div>
 </template>
+<style scoped>
+.app-shell {
+  width: min(1200px, 100%);
+  margin: 0 auto;
+  padding: 30px 24px 54px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.marca__logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--acento), var(--acento-oscuro));
+  color: #fff;
+  font-weight: 800;
+  font-size: 22px;
+  box-shadow: 0 10px 22px rgba(66, 184, 131, 0.32);
+}
+
+.marca h1 {
+  font-size: 25px;
+  letter-spacing: -0.4px;
+}
+
+.marca p {
+  font-size: 13.5px;
+  color: var(--texto-suave);
+  margin-top: 2px;
+}
+
+.chip-api {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--texto-suave);
+  background: #fff;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  padding: 7px 13px;
+}
+
+.chip-api::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--acento);
+  box-shadow: 0 0 0 3px var(--acento-suave);
+}
+
+.alerta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.alerta--error {
+  background: var(--peligro-suave);
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.alerta code {
+  background: #fff;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 1px 6px;
+  font-size: 12.5px;
+}
+
+.alerta__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.panel--tabla {
+  position: relative;
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--borde);
+}
+
+.buscador {
+  position: relative;
+  flex: 1 1 240px;
+  min-width: 200px;
+}
+
+.buscador svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.buscador .input {
+  padding-left: 38px;
+}
+
+.toolbar .select {
+  width: auto;
+  min-width: 130px;
+}
+
+.btn--dir {
+  min-width: 46px;
+}
+
+.barra-carga {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 2;
+}
+
+.barra-carga--activa {
+  opacity: 1;
+}
+
+.barra-carga::after {
+  content: '';
+  display: block;
+  width: 40%;
+  height: 100%;
+  background: var(--acento);
+  border-radius: 999px;
+  animation: barra 1s ease-in-out infinite;
+}
+
+@keyframes barra {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(350%);
+  }
+}
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  border-top: 1px solid var(--borde);
+}
+
+.paginacion__info {
+  font-size: 13.5px;
+  color: var(--texto-suave);
+}
+
+.paginacion__info strong {
+  color: var(--texto);
+}
+
+.paginacion__controles {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pagina {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: 9px;
+  border: 1px solid var(--borde);
+  background: #fff;
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--texto-suave);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.pagina:hover {
+  border-color: #cbd5e1;
+  color: var(--texto);
+}
+
+.pagina--activa {
+  background: var(--acento);
+  border-color: var(--acento);
+  color: #fff;
+}
+
+.pagina--activa:hover {
+  color: #fff;
+}
+
+.pie {
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--texto-suave);
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    padding: 20px 14px 42px;
+  }
+
+  .marca h1 {
+    font-size: 22px;
+  }
+
+  .toolbar .select {
+    flex: 1 1 140px;
+  }
+
+  .paginacion {
+    justify-content: center;
+  }
+}
+</style>
+
+
