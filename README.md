@@ -120,3 +120,50 @@ El cliente web implementa la misma filosofía en capas, abstrayendo los componen
 * **Capa de Excepciones Global:** Implementación de un `ExceptionSubscriber` en Symfony que intercepta automáticamente cualquier fallo físico del servidor de PostgreSQL, respondiendo con un JSON controlado `503 Service Unavailable` sin filtrar credenciales del sistema.
 
 npm create vue@latest mi-tienda-vue
+
+consultas
+return $this->createQueryBuilder('p') // 'p' es el alias para la tabla Producto
+        ->andWhere('p.nombre LIKE :nombre')
+        ->andWhere('p.precio >= :precio')
+        ->setParameter('nombre', '%' . $nombre . '%') // Parámetro seguro
+        ->setParameter('precio', $precioMinimo)       // Parámetro seguro
+        ->orderBy('p.precio', 'ASC')
+        ->getQuery()
+        ->getResult(); // Retorna un array de Objetos Producto
+
+ $em = $this->getEntityManager();
+    
+    $query = $em->createQuery(
+        'SELECT p 
+         FROM App\Entity\Producto p 
+         WHERE p.categoria = :catId 
+         ORDER BY p.nombre ASC'
+    )->setParameter('catId', $categoriaId);
+
+    return $query->getResult();
+
+    $productos = $this->productoRepository->findBy(
+    ['categoria' => 1, 'nombre' => 'Teclado'], // El WHERE (categoria_id = 1 AND nombre = 'Teclado')
+    ['precio' => 'DESC'],                     // El ORDER BY
+    10,                                       // El LIMIT
+    0                                         // El OFFSET
+);
+
+$conn = $this->getEntityManager()->getConnection();
+
+    // Escribes SQL real con la sintaxis exacta de PostgreSQL
+    $sql = 'SELECT * FROM producto p WHERE p.precio > :precio ORDER BY p.precio DESC';
+    
+    $resultSet = $conn->executeQuery($sql, ['precio' => $precio]);
+
+    return $resultSet->fetchAllAssociative(); // Retorna arrays, NO objetos
+
+
+    $em = $this->getEntityManager();
+    $rsm = new ResultSetMappingBuilder($em);
+    $rsm->addRootEntityFromClassMetadata('App\Entity\Producto', 'p');
+
+    $sql = 'SELECT * FROM producto p WHERE p.descripcion IS NOT NULL';
+    $query = $em->createNativeQuery($sql, $rsm);
+
+    return $query->getResult(); // Retorna objetos Producto mapeados
