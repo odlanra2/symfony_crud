@@ -1,0 +1,5 @@
+# --- ANGULAR (mi-tienda-frontend) ---
+/mi-tienda-frontend/node_modules/
+/mi-tienda-frontend/.angular/
+/mi-tienda-frontend/dist/
+/mi-tienda-frontend/.editorconfig

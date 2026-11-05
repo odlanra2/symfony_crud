@@ -1,0 +1,208 @@
+<div class="app-shell">
+  <header class="topbar">
+    <div class="marca">
+      <span class="marca__logo" aria-hidden="true">A</span>
+      <div>
+        <h1>Productos</h1>
+        <p>CRUD conectado a la API Symfony · Angular 21</p>
+      </div>
+    </div>
+
+    <span class="chip-api">API · /api/productos</span>
+  </header>
+   @if (errorConexion()) {
+    <div class="alerta alerta--error" role="alert">
+      <div class="alerta__texto">
+        <strong>Sin conexión con la API</strong>
+        <span>
+          Arranca Symfony con
+          <code>php -S 127.0.0.1:8000 -t public public/index.php</code>
+          y pulsa reintentar.
+        </span>
+      </div>
+      <button type="button" class="btn btn-ghost btn--compacto">
+        Reintentar
+      </button>
+    </div>
+  }
+<section class="panel panel--tabla">
+  <div class="toolbar">
+       <button type="button" class="btn btn-primary" (click)="abrirModalNuevo()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        Nuevo producto
+      </button>
+  </div>
+
+   <div class="tabla-envoltura">
+
+
+  <table class="tabla">
+    <thead >
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Precio</th>
+        <th>Categoría</th>
+        <th class="acciones-col">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- El flujo @for moderno lee la Signal productos() y gestiona listas vacías con @empty -->
+      @for (prod of productos(); track prod.id) {
+        <tr>
+          <td>{{ prod.id }}</td>
+          <td><strong>{{ prod.nombre }}</strong></td>
+          <td>{{ prod.descripcion || 'Sin descripción' }}</td>
+          <td>{{ prod.precio | currency }}</td>
+          <td>
+            <!-- @if nativo para asegurar que el objeto categoría esté presente -->
+            @if (prod.categoria) {
+              <span style="background: #28a745; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.85em;">
+                {{ prod.categoria.nombre }}
+              </span>
+            } @else {
+              <span style="color: gray;">Sin asignar</span>
+            }
+          </td>
+          <td>
+            <div class="acciones">
+                    <button
+                      type="button"
+                      class="accion"
+                      [title]="'Editar ' + prod.nombre"
+                      [attr.aria-label]="'Editar ' + prod.nombre"
+                      (click)="abrirModalEditar(prod)"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9" />
+                        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                      </svg>
+                    </button>
+
+                    <button
+                      type="button"
+                      class="accion accion--peligro"
+                      [title]="'Eliminar ' + prod.nombre"
+                      [attr.aria-label]="'Eliminar ' + prod.nombre"
+                      (click)="eliminarProducto(prod.id)"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18" />
+                        <path d="M8 6V4h8v2" />
+                        <path d="M19 6l-1 14H6L5 6" />
+                        <path d="M10 11v5M14 11v5" />
+                      </svg>
+                    </button>
+                  </div>
+
+
+
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="6" style="text-align: center; color: gray; padding: 20px;">
+            No hay productos registrados en la base de datos de PostgreSQL. ¡Crea el primero arriba!
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+</section>
+</div>
+ <!-- MODAL DINÁMICO (Se muestra si isModalOpen() es true) -->
+  @if (isModalOpen()) {
+
+      <div class="overlay">
+        <section
+            class="modal"
+            role="dialog"
+            aria-modal="true"
+            [attr.aria-label]="isEditing() ? 'Editar producto' : 'Nuevo producto'"
+
+         >
+        <header class="modal__cabecera">
+         <div>
+            <h2 class="modal__titulo">
+              {{ isEditing() ? 'Editar producto' : 'Nuevo producto' }}
+            </h2>
+            <p class="modal__subtitulo">
+              {{
+                isEditing()
+                  ? 'Modifica los datos y guarda los cambios.'
+                  : 'Completa los datos del nuevo producto.'
+              }}
+            </p>
+          </div>
+          <button type="button" class="modal__cerrar" aria-label="Cerrar" (click)="cerrarModal()">
+            ×
+          </button>
+         </header>
+          <form class="modal__cuerpo formulario" (ngSubmit)="guardarProducto()" novalidate>
+                <div class="campo">
+                     <label for="producto-nombre">Nombre *</label>
+                     <input
+                      id="producto-nombre"
+                      class="input"
+                      name="nombre"
+                      type="text"
+                      [(ngModel)]="nuevoProducto.nombre"
+                      autocomplete="off"
+                    />
+
+                </div>
+
+                  <div class="campo">
+                     <label for="producto-precio">Precio * ($):</label>
+                     <input
+                      id="producto-precio"
+                      class="input"
+                      type="number"
+                      name="precio"
+                      [(ngModel)]="nuevoProducto.precio"
+                      autocomplete="off"
+                    />
+
+                </div>
+                 <div class="campo">
+                     <label for="producto-descripcion">Descripción:</label>
+                     <textarea
+                         id="producto-descripcion"
+                         class="input"
+                         name="descripcion"
+                         [(ngModel)]="nuevoProducto.descripcion"
+                         autocomplete="off"
+                     >
+
+
+                      </textarea>
+                  </div>
+                   <div class="campo">
+                     <label for="producto-categoria">Categoría:</label>
+                     <select  class="input" [(ngModel)]="nuevoProducto.categoria_id" name="categoria_id" required style="width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box;">
+                      <option [ngValue]="null" disabled>-- Selecciona una categoría --</option>
+                      @for (cat of categorias(); track cat.id) {
+                          <option [value]="cat.id">{{ cat.nombre }}</option>
+                        }
+                      </select>
+                  </div>
+                   <footer class="modal__pie">
+                      <button type="button" (click)="cerrarModal()"  class="btn btn-ghost" >
+                        Cancelar
+                      </button>
+                      <button type="submit" class="btn btn-primary" >
+                        {{ isEditing() ? 'Guardar Cambios' : 'Registrar' }}
+                      </button>
+                  </footer>
+          </form>
+        </section>
+      </div>
+
+
+  }
