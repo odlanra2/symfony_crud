@@ -118,3 +118,5 @@ El cliente web implementa la misma filosofía en capas, abstrayendo los componen
 * **Prevención de N+1 (Eager Loading):** En el repositorio de Doctrine se diseñó el método personalizado `findAllWithCategoria()` aplicando `innerJoin` y `addSelect`, reduciendo decenas de peticiones redundantes a PostgreSQL a **una única consulta SQL**.
 * **Angular Signals:** Gestión fina de la UI mediante reactividad nativa con funciones operacionales `.set()` y `.update()`, logrando mutaciones en tiempo real en las tablas tras operaciones `POST`, `PUT` o `DELETE`.
 * **Capa de Excepciones Global:** Implementación de un `ExceptionSubscriber` en Symfony que intercepta automáticamente cualquier fallo físico del servidor de PostgreSQL, respondiendo con un JSON controlado `503 Service Unavailable` sin filtrar credenciales del sistema.
+
+npm create vue@latest mi-tienda-vue
