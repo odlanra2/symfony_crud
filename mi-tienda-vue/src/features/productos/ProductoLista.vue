@@ -129,6 +129,11 @@ const resetFormulario = () => {
 
       <span class="chip-api">API · /api/productos</span>
     </header>
+      <section class="panel panel--tabla">
+              <div class="toolbar">
+              
+              </div> 
+      </section>
   </div> 
   <div class="container" style="padding: 20px; font-family: sans-serif;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
