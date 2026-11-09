@@ -119,6 +119,60 @@ El cliente web implementa la misma filosofía en capas, abstrayendo los componen
 * **Angular Signals:** Gestión fina de la UI mediante reactividad nativa con funciones operacionales `.set()` y `.update()`, logrando mutaciones en tiempo real en las tablas tras operaciones `POST`, `PUT` o `DELETE`.
 * **Capa de Excepciones Global:** Implementación de un `ExceptionSubscriber` en Symfony que intercepta automáticamente cualquier fallo físico del servidor de PostgreSQL, respondiendo con un JSON controlado `503 Service Unavailable` sin filtrar credenciales del sistema.
 
+
+---
+
+## 🔒 MÓDULO DE AUTENTICACIÓN: API REST con JWT
+
+Implementamos un sistema de seguridad sin estado (*stateless*) basado en **JSON Web Tokens (JWT)**. La API firma un token seguro al iniciar sesión y restringe las operaciones de escritura (`POST`, `PUT`, `DELETE`) en los controladores si no se envía la cabecera correspondiente.
+
+### 📦 Paquetes de Seguridad Instalados
+```powershell
+composer require symfony/security-bundle
+composer require lexik/jwt-authentication-bundle
+```
+
+### 🗝️ Solución de Criptografía para Entornos Windows
+Debido a incompatibilidades del comando nativo con las librerías nativas de OpenSSL en entornos de desarrollo Windows, se generó el par de llaves criptográficas de forma manual utilizando las herramientas aisladas de Git:
+```powershell
+# 1. Crear el directorio de seguridad
+mkdir config/jwt
+
+# 2. Generar llave privada (firma del token en el login)
+& "C:\Program Files\Git\usr\bin\openssl.exe" genrsa -out config/jwt/private.pem -aes256 4096
+
+# 3. Generar llave pública (verificación del token en rutas protegidas)
+& "C:\Program Files\Git\usr\bin\openssl.exe" rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem
+```
+
+Y se enlazaron en las variables de entorno globales del archivo **`.env`**:
+```text
+JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
+JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
+JWT_PASSPHRASE=tu_clave_secreta_ingresada_en_consola
+```
+
+### 🧱 Configuración del Muro de Contención (`security.yaml`)
+Se estructuró el archivo `config/packages/security.yaml` para habilitar el validador JSON, proteger los endpoints y mapear los campos para evitar la discrepancia por defecto de nombres de usuario:
+
+*   **Creación de la clase de usuario e inyección del encriptador:** Realizado mediante el comando interactivo `php bin/console make:user` para forzar contraseñas cifradas con algoritmos de hashing dinámicos (`auto`/`Bcrypt`/`Argon2id`).
+*   **Mapeo Estricto de JSON (`username_path`):** Se configuró el validador interno `JsonLoginAuthenticator` para escuchar el campo `"email"` nativo enviado por el frontend en lugar de exigir la palabra `"username"` por defecto de Symfony.
+*   **Políticas de Firewall Aplicadas:**
+    *   `POST /api/register` ➔ **Acceso Público** (Creación de cuentas).
+    *   `POST /api/login_check` ➔ **Acceso Público** (Interceptado por el bundle para devolver el Token).
+    *   `GET /api/productos` y `GET /api/categorias` ➔ **Acceso Público** (Catálogo visible).
+    *   `POST`, `PUT`, `PATCH`, `DELETE` en productos/categorías ➔ **Bloqueo Estricto** (Solo usuarios autenticados con cabecera `Authorization: Bearer <token>`).
+
+### 🛠️ Comandos de Consola Utilizados en este Módulo
+*   **Generar estructura base de la Entidad de Seguridad:** `php bin/console make:user`
+*   **Crear el Controlador de Registro:** `php bin/console make:controller Api/AuthController`
+*   **Migrar la tabla de usuarios a PostgreSQL:**
+    ```powershell
+    php bin/console make:migration
+    php bin/console doctrine:migrations:migrate
+    ```
+
+
 npm create vue@latest mi-tienda-vue
 
 consultas
