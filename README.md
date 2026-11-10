@@ -221,3 +221,96 @@ $conn = $this->getEntityManager()->getConnection();
     $query = $em->createNativeQuery($sql, $rsm);
 
     return $query->getResult(); // Retorna objetos Producto mapeados
+
+
+
+    <?php
+
+namespace App\Controller\Api;
+
+use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Annotation\Route;
+
+#[Route('/api')]
+class AuthController extends AbstractController
+{
+    #[Route('/login_check', name: 'api_login_check', methods: ['POST'])]
+    public function loginCheck(
+        Request $request, 
+        EntityManagerInterface $em, 
+        UserPasswordHasherInterface $passwordHasher
+    ): JsonResponse {
+        // 1. Decodificamos el JSON que viene del Frontend
+        $data = json_decode($request->getContent(), true);
+
+        if (!isset($data['email']) || !isset($data['password'])) {
+            return new JsonResponse([
+                'success' => false, 
+                'message' => 'Credenciales incompletas'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        // 2. Buscamos al usuario de forma manual en PostgreSQL usando Doctrine
+        $userRepository = $em->getRepository(User::class);
+        /** @var User|null $user */
+        $user = $userRepository->findOneBy(['email' => $data['email']]);
+
+        // 3. Si el usuario no existe, rechazamos
+        if (!$user) {
+            return new JsonResponse([
+                'success' => false, 
+                'message' => 'El usuario no existe'
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        // 4. Verificamos que el usuario esté activo en el sistema
+        // Nota: asumo que tienes el método getActivo() o similar en tu entidad
+        if (method_exists($user, 'getActivo') && !$user->getActivo()) {
+            return new JsonResponse([
+                'success' => false, 
+                'message' => 'La cuenta de usuario está inactiva'
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        // 5. Validamos la contraseña usando el Hasher seguro de Symfony
+        if (!$passwordHasher->isPasswordValid($user, $data['password'])) {
+            return new JsonResponse([
+                'success' => false, 
+                'message' => 'Contraseña incorrecta'
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        // 6. ¡Éxito! Generamos un Token criptográfico aleatorio y seguro de 64 caracteres
+        $token = bin2hex(random_bytes(32));
+        
+        // 7. Establecemos la fecha de expiración (24 horas a partir de ahora)
+        $expiration = new \DateTime();
+        $expiration->modify('+24 hours');
+
+        // 8. Guardamos físicamente los datos del Token en la tabla de PostgreSQL
+        $user->setApiToken($token);
+        $user->setTokenExpiresAt($expiration);
+        
+        $em->flush();
+
+        // 9. Respondemos al Frontend el objeto limpio idéntico a tu arquitectura monolítica
+        return new JsonResponse([
+            'success' => true,
+            'mensaje' => 'Usuario logueado exitosamente',
+            'token'   => $token,
+            'usuario' => [
+                'id'        => $user->getId(),
+                'nombreusu' => method_exists($user, 'getNombreusu') ? $user->getNombreusu() : $user->getEmail(),
+                'email'     => $user->getEmail(),
+                'perfil'    => method_exists($user, 'getPerfil') ? $user->getPerfil() : 'USER'
+            ]
+        ], Response::HTTP_OK);
+    }
+}
+
