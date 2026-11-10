@@ -52,4 +52,28 @@ class AuthController extends AbstractController
 
         return new JsonResponse(['message' => 'Usuario registrado con éxito'], Response::HTTP_CREATED);
     }
+
+
+     #[Route('/me', name: 'me', methods: ['GET'])]
+    public function me(): JsonResponse
+    {
+        /** @var User $usuario */
+        $usuario = $this->getUser();
+
+        return $this->json($this->serializarUsuario($usuario));
+    }
+
+     /**
+     * @return array{id: int|null, email: string, nombre: string|null, roles: list<string>, creadoEn: string}
+     */
+    private function serializarUsuario(User $usuario): array
+    {
+        return [
+            'id' => $usuario->getId(),
+            'email' => $usuario->getEmail(),
+            'nombre' => $usuario->getNombre(),
+            'roles' => $usuario->getRoles(),
+            'creadoEn' => $usuario->getCreadoEn()->format(\DateTimeInterface::ATOM),
+        ];
+    }
 }

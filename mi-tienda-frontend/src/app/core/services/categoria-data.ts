@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Categoria } from '../models/tienda';
+import {API_URL} from '../api';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CategoriaDataService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://127.0.0.1:9000/api/categorias';
+  private apiUrl = API_URL + 'categorias';
 
   findAll(): Observable<Categoria[]> {
     return this.http.get<Categoria[]>(this.apiUrl);

@@ -53,11 +53,10 @@ security:
          - { path: ^/api/register, roles: PUBLIC_ACCESS }
 
          # Rutas protegidas: Solo usuarios logueados pueden hacer POST, PUT o DELETE
-         - { path: ^/api/categorias, roles: IS_AUTHENTICATED_FULLY, methods: [POST, PUT, PATCH, DELETE] }
-         - { path: ^/api/productos, roles: IS_AUTHENTICATED_FULLY, methods: [POST, PUT, PATCH, DELETE] }
+        
 
          # Permitimos que la lectura (GET) de productos y categorías siga siendo pública
-         - { path: ^/api, roles: PUBLIC_ACCESS }
+         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
