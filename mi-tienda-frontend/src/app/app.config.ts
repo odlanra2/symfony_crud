@@ -13,6 +13,6 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes), provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])), // <-- 2. AGREGA ESTA LÍNEA AQUÍ
-   // provideAppInitializer(() => inject(AuthService).restaurarSesion()),
+    provideAppInitializer(() => inject(AuthService).restaurarSesion()),
   ]
 };

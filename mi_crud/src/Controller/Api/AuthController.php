@@ -71,9 +71,9 @@ class AuthController extends AbstractController
         return [
             'id' => $usuario->getId(),
             'email' => $usuario->getEmail(),
-            'nombre' => $usuario->getNombre(),
+            //'nombre' => $usuario->getNombre(),
             'roles' => $usuario->getRoles(),
-            'creadoEn' => $usuario->getCreadoEn()->format(\DateTimeInterface::ATOM),
+            //'creadoEn' => $usuario->getCreadoEn()->format(\DateTimeInterface::ATOM),
         ];
     }
 }

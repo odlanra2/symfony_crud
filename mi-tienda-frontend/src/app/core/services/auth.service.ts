@@ -30,7 +30,7 @@ export class AuthService {
   readonly aviso = this._aviso.asReadonly();
   readonly autenticado = computed(() => this._token() !== null);
   readonly nombreVisible = computed(
-    () => this._usuario()?.nombre || this._usuario()?.email || 'Usuario',
+    () =>  this._usuario()?.email || 'Usuario',
   );
 
   readonly inicial = computed(() => this.nombreVisible().charAt(0).toUpperCase());
@@ -41,7 +41,7 @@ export class AuthService {
         // El token debe estar guardado antes de pedir /me para que el interceptor lo envíe.
         saveToken(token);
         this._token.set(token);
-
+        console.log('Token guardado:', token);
         return  this.obtenerUsuario().pipe(tap((usuario) => this.establecerSesion(token, usuario)));
       }),
       catchError((error: HttpErrorResponse) => {

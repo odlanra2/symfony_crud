@@ -9,7 +9,7 @@ import { API_URL} from '../api';
 })
 export class ProductoDataService {
   private http = inject(HttpClient);
-  private apiUrl = API_URL + 'productos';
+  private apiUrl = API_URL + '/productos';
 
   findAll(): Observable<Producto[]> {
     return this.http.get<Producto[]>(this.apiUrl);

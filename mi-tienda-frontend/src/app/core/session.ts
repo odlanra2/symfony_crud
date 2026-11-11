@@ -1,9 +1,9 @@
 export interface User{
   id?: number;
   email: string;
-  nombre: string | null;
+  //nombre: string | null;
   roles: string[];
-  creadoEn: string;
+  //creadoEn: string;
 
 }
 
@@ -17,7 +17,7 @@ export interface ResponseToken{
 }
 
 export interface RegistroPayload extends Credentials {
-  nombre: string;
+
 }
 
 export interface RespuestaRegistro {
@@ -33,7 +33,13 @@ export const saveToken=(token:string):void=>{
 }
 
 export const getToken= ():string | null =>{
-      return localStorage.getItem(TOKEN_KEY);
+    try {
+       return localStorage.getItem(TOKEN_KEY);
+    } catch {
+      return null;
+    }
+
+ // return localStorage.getItem(TOKEN_KEY);
 }
 
 export const saveSession =(token:string, user:User):void=>{

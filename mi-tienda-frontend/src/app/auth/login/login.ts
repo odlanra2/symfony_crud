@@ -1,8 +1,11 @@
-import { Component,  AfterViewInit,  inject, computed,  signal, viewChild, ElementRef } from '@angular/core';
+
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component,  AfterViewInit,  inject, computed,  signal, viewChild, ElementRef, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
+import { AuthService } from '../../core/services/auth.service';
 
 type Modo = 'login' | 'registro';
 type CampoFormulario = 'nombre' | 'email' | 'password' | 'confirmar';
@@ -16,6 +19,7 @@ type CampoFormulario = 'nombre' | 'email' | 'password' | 'confirmar';
 
 export class Login  implements AfterViewInit
 {
+     private readonly auth = inject(AuthService);
 
      private readonly router = inject(Router);
 
@@ -45,6 +49,8 @@ export class Login  implements AfterViewInit
       ? 'Regístrate una vez y empieza a gestionar el inventario.'
       : 'Inicia sesión para acceder al CRUD de productos.',
     );
+
+     private readonly destroyRef = inject(DestroyRef);
 
 
 
@@ -85,6 +91,32 @@ export class Login  implements AfterViewInit
         this.error.set('');
         this.erroresCampo.set({});
 
+          const peticion = esRegistro
+          ? this.auth.registrar({
+            email: valores.email.trim(),
+            password: valores.password,
+
+           })
+         : this.auth.iniciarSesion({
+          email: valores.email.trim(),
+          password: valores.password,
+        });
+
+     peticion
+      .pipe(
+        finalize(() => this.cargando.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          void this.router.navigate(['/']);
+        },
+        error: (fallo: HttpErrorResponse) => {
+          this.erroresCampo.set(fallo.error?.errors || {});
+          this.error.set(fallo.error?.message || 'Error desconocido. Intenta de nuevo más tarde.',);
+        },
+      });
+
 
     }
 
@@ -92,7 +124,26 @@ export class Login  implements AfterViewInit
     protected mensajeCampo(campo: CampoFormulario): string
     {
 
-          return '';
+        const erroresServidor = this.erroresCampo()[campo];
+        if (erroresServidor && erroresServidor.length > 0) return erroresServidor[0];
+
+        const control = this.form.get(campo);
+        if (!control || control.valid || !(control.touched || control.dirty)) return '';
+
+        if (control.hasError('required')) return 'Este campo es obligatorio.';
+        if (control.hasError('email')) return 'Escribe un email válido.';
+
+        if (control.hasError('minlength')) {
+          const error = control.getError('minlength') as { requiredLength: number };
+          return `Mínimo ${error.requiredLength} caracteres.`;
+        }
+
+        if (control.hasError('maxlength')) {
+          const error = control.getError('maxlength') as { requiredLength: number };
+          return `Máximo ${error.requiredLength} caracteres.`;
+        }
+
+        return 'Valor inválido.';
 
      }
 

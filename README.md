@@ -313,4 +313,21 @@ class AuthController extends AbstractController
         ], Response::HTTP_OK);
     }
 }
+Interceptor de Autenticación
 
+La aplicación utiliza un HTTP Interceptor de Angular para gestionar la autenticación basada en JWT. Una vez iniciado sesión, el token recibido desde la API se almacena localmente y el interceptor lo añade automáticamente en la cabecera Authorization de todas las peticiones protegidas.
+
+Esto evita tener que enviar el token manualmente en cada solicitud y centraliza la gestión de la seguridad de la aplicación.
+
+Plain Text
+Authorization: Bearer <jwt-token>
+ 
+
+Además, el interceptor controla las respuestas 401 Unauthorized, cerrando la sesión y redirigiendo al usuario a la pantalla de inicio de sesión cuando el token es inválido o ha expirado.
+
+Ventajas:
+
+Envío automático del token JWT.
+Código más limpio y reutilizable.
+Gestión centralizada de la autenticación.
+Manejo automático de sesiones expiradas.
