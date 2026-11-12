@@ -6,7 +6,9 @@ import Auth from './features/auth/Auth.vue';
 <template>
   <main>
     <!-- Renderizamos el componente del CRUD -->
-    <Auth />
+    <!-- <ProductoLista />-->
+    <!--<Auth />-->
+    <RouterView />
   </main>
 </template>
 
