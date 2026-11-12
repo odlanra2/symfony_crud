@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { ProductoDataService } from '../../../core/services/producto-data';
 import { CategoriaDataService } from '../../../core/services/categoria-data';
 import { Producto, Categoria } from '../../../core/models/tienda';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-producto-lista',
@@ -16,7 +18,8 @@ export class ProductoListaComponent implements OnInit {
   // Capa de Infraestructura (Servicios de datos)
   private productoDataService = inject(ProductoDataService);
   private categoriaDataService = inject(CategoriaDataService);
-
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
   // 1. Declaración de Estados usando Angular Signals
   productos = signal<Producto[]>([]);
   categorias = signal<Categoria[]>([]);
@@ -166,5 +169,10 @@ export class ProductoListaComponent implements OnInit {
       descripcion: '',
       categoria_id: null
     };
+  }
+
+  protected salir(): void {
+    this.auth.cerrarSesion();
+    void this.router.navigate(['/login']);
   }
 }
