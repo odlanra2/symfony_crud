@@ -10,6 +10,7 @@ import {
     CleanSession, saveToken, 
     type RegistroPayload
     } from '../core/sesion'
+import router from '../router'    
 import { TOKEN_KEY, USER_KEY } from '../core/api'
 
 export const useAuthStore = defineStore('auth', ()=>{
@@ -39,6 +40,8 @@ export const useAuthStore = defineStore('auth', ()=>{
          saveToken(nuevoToken)
          const datosUsuario = await authApi.me()
          saveSession(nuevoToken, datosUsuario)
+
+         await router.push({ name: 'producto' })
         } catch (fallo) {
           CleanSession()
           error.value =  'Error desconocido'
@@ -85,7 +88,12 @@ export const useAuthStore = defineStore('auth', ()=>{
   }
 
   function cerrarSesion(motivo = '') {
+    token.value = ''
+    if (motivo) {
+      aviso.value = motivo
+    }
     CleanSession()
+    router.push({ name: 'login' })
   }
 
    

@@ -3,6 +3,8 @@ import { ref, onMounted } from 'vue';
 import { ProductoDataService } from '../../core/services/producto-data';
 import { CategoriaDataService } from '../../core/services/categoria-data';
 import type { Producto, Categoria } from '../../core/models/tienda.interface';
+import { useAuthStore } from '../../stores/auth'
+const auth = useAuthStore()
 
 // 1. Estados Reactivos (Equivalente exacto a Signals)
 const productos = ref<Producto[]>([]);
@@ -113,6 +115,10 @@ const eliminarProducto = async (id: number | undefined) => {
 const resetFormulario = () => {
   nuevoProducto.value = { nombre: '', precio: '', descripcion: '', categoria_id: null };
 };
+
+const salir =()=>{
+    auth.cerrarSesion()
+}
 </script>
 
 <template>
@@ -128,6 +134,9 @@ const resetFormulario = () => {
       </div>
 
       <span class="chip-api">API · /api/productos</span>
+       <button type="button" class="btn btn-ghost btn--compacto" @click="salir">
+              Salir
+            </button>
     </header>
       <section class="panel panel--tabla">
               <div class="toolbar">
